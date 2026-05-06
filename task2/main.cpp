@@ -1,26 +1,21 @@
 #include <iostream>
+#include <vector>
+#include <numeric>
+#include <cstdlib>
+#include <ctime>
+
 using namespace std;
 
-long long gcd(long long a, long long b) {
-    while (b != 0) {
-        long long t = a % b;
-        a = b;
-        b = t;
-    }
-    return a;
-}
-
-long long modPow(long long a, long long power, long long mod) {
+long long modPow(long long a, long long p, long long mod) {
     long long result = 1;
     a %= mod;
 
-    while (power > 0) {
-        if (power % 2 == 1) {
-            result = (result * a) % mod;
-        }
+    while (p > 0) {
+        if (p % 2 == 1)
+            result = (__int128)result * a % mod;
 
-        a = (a * a) % mod;
-        power /= 2;
+        a = (__int128)a * a % mod;
+        p /= 2;
     }
 
     return result;
@@ -60,15 +55,42 @@ bool pocklingtonTest(long long n) {
 }
 
 int main() {
-    long long n;
+    srand(time(0));
 
-    cout << "Введите число N: ";
-    cin >> n;
+    int bits;
+    cout << "Введите количество бит: ";
+    cin >> bits;
 
-    if (pocklingtonTest(n)) {
-        cout << "Число простое" << endl;
-    } else {
-        cout << "Число составное" << endl;
+    if (bits < 2 || bits > 30) {
+        cout << "Ошибка: количество бит должно быть от 2 до 30" << endl;
+        return 0;
+    }
+
+    long long left = 1LL << (bits - 1);
+    long long right = (1LL << bits) - 1;
+
+    int found = 0;
+    int rejected = 0;
+
+    cout << "\nДиапазон: [" << left << "; " << right << "]" << endl;
+    cout << "№\tЧисло\tРезультат\tRejected\n";
+
+    while (found < 10) {
+        long long n = left + rand() % (right - left + 1);
+
+        if (n % 2 == 0)
+            n++;
+
+        if (n > right)
+            n -= 2;
+
+        if (pocklingtonTest(n)) {
+            found++;
+            cout << found << "\t" << n << "\tпростое\t\t" << rejected << endl;
+            rejected = 0;
+        } else {
+            rejected++;
+        }
     }
 
     return 0;
